@@ -6,14 +6,20 @@
 
 // Include GLFW (OpenGL Framework)
 #include <GLFW\glfw3.h>
+GLFWwindow* window;
 
 // Include GLM (OpenGL Mathematics)
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
-
 using namespace glm; // Save having to type glm:: everywhere
 
 #include "loadShader.h"
+#include "loadBMPTexture.h"
+#include "player.h"
+#include "court.h"
+
+GLuint width = 800;
+GLuint height = 800;
 
 int main( void )
 {
@@ -29,7 +35,7 @@ int main( void )
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow( 800, 800, "Virtually Tennis - TJ Matthews", NULL, NULL);
+	window = glfwCreateWindow( width, height, "Virtually Tennis - TJ Matthews", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, then get another GPU.\n" );
 		glfwTerminate();
@@ -46,8 +52,37 @@ int main( void )
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN); // Hide the mouse cursor
+	glfwSetCursorPos(window, width / 2, height / 2);
 
-	// Create and compile our GLSL program from the shaders
-	GLuint programID = LoadShaders( "vertexShader.glsl", "fragmentShader.glsl" );
+	// Paint the background
+	glClearColor(0.1f, 0.2f, 0.2f, 0.0f);
 
+	// Enable depth test
+	// Accept fragment if it is closer to the camera than any other
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	init_court();
+
+	do {
+		// Clear screen
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+		playerLoop();
+		draw_court();
+
+		// Swap buffers
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	while ( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+		glfwWindowShouldClose(window) == 0 );
+
+	clean_court();
+
+	// Close OpenGL window and terminate GLFS
+	glfwTerminate();
+
+	return 0;
 }

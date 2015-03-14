@@ -44,12 +44,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually Tennis\glm;C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually Tennis\glfw-3.0.4.bin.WIN32\include;C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually Tennis\glew-1.11.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually-Tennis\glm;C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually-Tennis\glfw-3.0.4.bin.WIN32\include;C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually-Tennis\glew-1.11.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually Tennis\glfw-3.0.4.bin.WIN32\lib-msvc110;C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually Tennis\glew-1.11.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually-Tennis\glfw-3.0.4.bin.WIN32\lib-msvc110;C:\Users\Thomas_Matthews\Google Drive\University Work\Level H\Games Programming\Virtually-Tennis\glew-1.11.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -68,11 +69,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="court.cpp" />
+    <ClCompile Include="loadBMPTexture.cpp" />
     <ClCompile Include="loadShader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="obj_parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="player.h" />
+    <ClInclude Include="court.h" />
+    <ClInclude Include="loadBMPTexture.h" />
     <ClInclude Include="loadShader.h" />
+    <ClInclude Include="obj_parser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="court_frag.glsl" />
+    <None Include="court_vert.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Assets\tenniscourt.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
