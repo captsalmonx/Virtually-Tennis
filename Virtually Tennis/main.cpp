@@ -18,7 +18,7 @@ using namespace glm; // Save having to type glm:: everywhere
 #include "player.h"
 #include "court.h"
 
-GLuint width = 800;
+GLuint width = 1280;
 GLuint height = 800;
 
 int main( void )

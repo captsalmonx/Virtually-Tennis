@@ -3,12 +3,18 @@
 | Mesh MUST contain vertex points, normals, and texture coordinates            |
 | Faces MUST come after all other data in the .obj file                        |
 \******************************************************************************/
-#include "obj_parser.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL\glew.h>
-#include <GLFW\glfw3.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+// Include GLM (OpenGL Mathematics)
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+using namespace glm; // Save having to type glm:: everywhere
+
+#include "obj_parser.h"
 
 bool load_obj_file  (
 	const char* file_name,
@@ -167,3 +173,34 @@ bool load_obj_file  (
 	return true;
 }
 
+bool createPlane(
+	GLfloat points[],
+	GLfloat uvs[],
+	mat4 * model_matrix,
+	float width, 
+	float height, 
+	float x, 
+	float y, 
+	float z, 
+	float pitch,
+	float yaw, 
+	float roll
+){
+	points[0] = -width / 2.0f;	points[1] = -height / 2.0f;		points[2] = 0.0f;
+	points[3] = width / 2.0f;	points[4] = -height / 2.0f;		points[5] = 0.0f;
+	points[6] = -width / 2.0f;	points[7] = height / 2.0f;		points[8] = 0.0f;
+	points[9] = width / 2.0f;	points[10] = height / 2.0f;		points[11] = 0.0f;
+
+	uvs[0] = 0.0f;	uvs[1] = 0.0f;
+	uvs[2] = 1.0f;	uvs[3] = 0.0f;
+	uvs[4] = 0.0f;	uvs[5] = 1.0f;
+	uvs[6] = 1.0f;	uvs[7] = 1.0f;
+
+	mat4 transMat = translate(mat4(1.0f), vec3(x, y, z));
+	mat4 rotXMat = rotate(mat4(1.0f), radians(pitch), vec3(1, 0, 0));
+	mat4 rotYMat = rotate(mat4(1.0f), radians(yaw), vec3(0, 1, 0));
+	mat4 rotZMat = rotate(mat4(1.0f), radians(roll), vec3(0, 0, 1));
+
+	*model_matrix = transMat * (rotXMat * rotYMat * rotZMat);
+	return true;
+}

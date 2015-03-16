@@ -21,11 +21,12 @@ mat4 getProjectionMatrix(){
 	return ProjectionMatrix;
 }
 
-vec3 position = vec3( 0, 0, 5 ); // Initial position on Z upped to replicate human head position
+const float playerHeight = 5.0f;
+vec3 position = vec3( 0.0f, playerHeight, 15.0f ); // Initial position pulled back on Z to start near court edge
 float horizontalAngle = 3.14f; // Initial horizontal angle towards -Z
 float verticalAngle = 0.0f; // Initial vertical angle 0
 float initialFoV = 45.0f; // Initial Field of View
-float speed = 3.0f; // 3 units per second
+float speed = 15.0f; // 3 units per second
 
 float mouseSpeed = 0.005f; // Mouse/camera rotation speed
 
@@ -91,7 +92,7 @@ void playerLoop()
 	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	ProjectionMatrix = perspective(FoV, 4.0f / 3.0f, 0.1f, 100.0f);
 
-	position.y = 0; // Throttle the player to remain on ground
+	position.y = playerHeight; // Throttle the player to remain on ground
 
 	// Camera/view matrix
 	ViewMatrix = lookAt(
