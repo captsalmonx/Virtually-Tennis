@@ -1,4 +1,5 @@
 // Include GLFW
+#include <GL\glew.h>
 #include <GLFW/glfw3.h>
 extern GLFWwindow* window; // The "extern" keyword here is to access the variable "window" as declared in main.cpp
 
@@ -8,10 +9,13 @@ extern GLFWwindow* window; // The "extern" keyword here is to access the variabl
 using namespace glm; // Allow us to not have to type glm::
 
 #include "player.h"
+#include "text.h"
+#include "gl_utils.h"
 
 // Variables to be passed back into the game loop in main.cpp
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
+void (*swing)(float);
 
 mat4 getViewMatrix(){
 	return ViewMatrix;
@@ -21,28 +25,39 @@ mat4 getProjectionMatrix(){
 	return ProjectionMatrix;
 }
 
+void setSwingFunction(void (*swingFunction)(float)){
+	swing = swingFunction;
+}
+
 const float playerHeight = 5.0f;
 const vec3 playerSpawn = vec3(-5.0f, playerHeight, 35.0f);
 
 vec3 position = playerSpawn; // Initial position pulled back on Z to start near court edge
 float horizontalAngle = 3.14f; // Initial horizontal angle towards -Z
 float verticalAngle = 0.0f; // Initial vertical angle 0
-float initialFoV = 45.0f; // Initial Field of View
-float speed = 15.0f; // 3 units per second
+float moveSpeed = 15.0f, mouseSpeed = 0.005f; // Mouse/camera rotation speed
+float power = 0.0f, powerVelocity = 0.0f, powerAcceleration = 0.1f;
 
-float mouseSpeed = 0.005f; // Mouse/camera rotation speed
+int powerText;
 
-void playerLoop()
+void init_player()
 {
-	// Static definition means that this is only given a value from glfwGetTime once
-	// afterwards it's updated at the end of this function
-	static double lastTime = glfwGetTime();
+	/*powerText = add_text (
+		"TEST",
+		-200.0f / WINDOW_WIDTH,
+		1.0f,
+		110.0f,
+		0.9f,
+		0.9f,
+		0.0f,
+		0.8f
+	);*/
+	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	ProjectionMatrix = perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+}
 
-	// Compute time difference between current and last frame
-	// so that it doesn't matter whether you have a fast or slow computer
-	double currentTime = glfwGetTime();
-	float deltaTime = float(currentTime - lastTime);
-
+void update_player(float delta)
+{
 	// Get mouse position
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
@@ -77,22 +92,18 @@ void playerLoop()
 
 	// Move forward
 	if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS){
-		position += direction * deltaTime * speed; 
+		position += direction * delta * moveSpeed; 
 	}
 	if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS){
-		position -= direction * deltaTime * speed; 
+		position -= direction * delta * moveSpeed; 
 	}
 	if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS){
-		position += right * deltaTime * speed;
+		position += right * delta * moveSpeed;
 	}
 	if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
-		position -= right * deltaTime * speed;
+		position -= right * delta * moveSpeed;
 	}
 
-	float FoV = initialFoV * (glfwGetKey( window, GLFW_KEY_F ) == GLFW_PRESS ? 0.99f : 1.0f);
-
-	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	ProjectionMatrix = perspective(FoV, 4.0f / 3.0f, 0.1f, 100.0f);
 
 	position.y = playerHeight; // Throttle the player to remain on ground
 
@@ -102,7 +113,4 @@ void playerLoop()
 		position + direction,	// Where is it facing?
 		up						// Up orientation, up is up
 		);
-
-	// For the next frame last time will be current time, i.e. now
-	lastTime = currentTime;
 }

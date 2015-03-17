@@ -185,12 +185,8 @@ bool create_plane(
 	uvs[4] = 0.0f;	uvs[5] = 1.0f;
 	uvs[6] = 1.0f;	uvs[7] = 1.0f;
 
-	mat4 transMat = translate(mat4(1.0f), pos);
-	mat4 rotXMat = rotate(mat4(1.0f), radians(rot.x), vec3(1, 0, 0));
-	mat4 rotYMat = rotate(mat4(1.0f), radians(rot.y), vec3(0, 1, 0));
-	mat4 rotZMat = rotate(mat4(1.0f), radians(rot.z), vec3(0, 0, 1));
-
-	pl->modelMatrix = transMat * (rotXMat * rotYMat * rotZMat);
+	pl->pos = pos;
+	pl->rot = rot;
 	pl->point_count = 4;
 	return true;
 }
@@ -247,8 +243,23 @@ bool draw_object(
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, obj->textureID);
 	glBindVertexArray(obj->vao);
-	mat4 MVP = projectionMatrix * viewMatrix * obj->modelMatrix;
+
+	mat4 T = translate(mat4(1.0f), obj->pos);
+	mat4 Rx = rotate(mat4(1.0f), radians(obj->rot.x), vec3(1, 0, 0));
+	mat4 Ry = rotate(mat4(1.0f), radians(obj->rot.y), vec3(0, 1, 0));
+	mat4 Rz = rotate(mat4(1.0f), radians(obj->rot.z), vec3(0, 0, 1));
+
+	mat4 MVP = projectionMatrix * viewMatrix * (T * (Rx * Ry * Rz));
 	glUniformMatrix4fv(obj->mvp, 1, GL_FALSE, &MVP[0][0]);
 	glDrawArrays(drawMode, 0, obj->point_count);
 	return true;
 }
+
+bool delete_object(
+	object * obj
+){
+	glDeleteProgram(obj->sp);
+	glDeleteVertexArrays(1, &obj->vao);
+	return true;
+}
+	
