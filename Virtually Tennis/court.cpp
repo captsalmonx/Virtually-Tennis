@@ -1,4 +1,3 @@
-#include "court.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -10,110 +9,101 @@
 #include <glm\gtc\matrix_transform.hpp>
 using namespace glm; // Save having to type glm:: everywhere
 
-#include "loadShader.h"
+#include "gl_utils.h"
 #include "player.h"
-#include "loadBMPTexture.h"
-#include "obj_parser.h"
+#include "court.h"
 
-mat4 modelMatrix;
-GLuint programID, vertexArrayID, matrixID;
-GLuint vertexbuffer, uvbuffer;
+#define BALL_MESH "Assets/ball.obj"
+#define FLOOR_TEXTURE "Assets/tennis-court.png"
 
-GLuint floor_texture, floor_textureID;
-GLfloat floor_vertex_buffer_data[12], floor_uv_buffer_data[8];
+// Court dimensions, 36 feet by 78 feet
+const vec2 court_dimensions = vec2(36.0f, 78.0f);
+
+plane court_floor;
+tennis_ball ball;
+
+GLuint floor_vao, ball_vao;
+GLuint floor_sp, ball_sp;
+GLuint floor_mvp, ball_mvp;
 
 bool init_court() {
-	createPlane(floor_vertex_buffer_data, floor_uv_buffer_data, &modelMatrix, 
-		36.0f, 78.0f, 
-		0.0f, 0.0f, 0.0f, 
-		-90.0f, 0.0f, 0.0f); 
+	float* points = NULL;
+	float* uvs = NULL;
+	float* normals = NULL;
+	GLuint vp_vbo, vu_vbo;
 
-	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS); 
+	// CREATE FLOOR
+	createPlane(&court_floor, 
+		points,
+		uvs,
+		court_dimensions, 
+		vec3(0.0f, 0.0f, 0.0f),
+		vec3(-90.0f, 0.0f, 0.0f),
+		FLOOR_TEXTURE); 
 
-	glGenVertexArrays(1, &vertexArrayID);
-	glBindVertexArray(vertexArrayID);
+	glGenBuffers(1, &vp_vbo);
+	glGenBuffers(1, &vu_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glBufferData(GL_ARRAY_BUFFER, court_floor.point_count * sizeof(float) * 3, points, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vu_vbo);
+	glBufferData(GL_ARRAY_BUFFER, court_floor.point_count * sizeof(float) * 2, uvs, GL_STATIC_DRAW);
 
-	// Create and compile our GLSL program from the shaders
-	programID = LoadShaders( "court_vert.glsl", "court_frag.glsl" );
-
-	matrixID = glGetUniformLocation(programID, "MVP");
-
-	// Load the texture and get a handle for the uniform variable
-	floor_texture = loadBMP_custom("Assets/tennis-court.bmp");
-	floor_textureID = glGetUniformLocation(programID, "myTextureSampler");
-
-	// Init vertex buffer and array
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(floor_vertex_buffer_data), floor_vertex_buffer_data, GL_STATIC_DRAW);
-
+	glGenVertexArrays(1, &floor_vao);
+	glBindVertexArray(floor_vao);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
-
-	glGenBuffers(1, &uvbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(floor_uv_buffer_data), floor_uv_buffer_data, GL_STATIC_DRAW);
-
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		1,
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
+	glBindBuffer(GL_ARRAY_BUFFER, vu_vbo);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, floor_texture);
-	glUniform1i(floor_textureID, 0);
+	floor_sp = link_programme_from_files( "base.vert", "base.frag" );
+	floor_mvp = glGetUniformLocation(floor_sp, "MVP");
 
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
+	// CREATE BALL
+	//if(!load_obj_file(
+	//	BALL_MESH,
+	//	points,
+	//	uvs,
+	//	normals,
+	//	ball.point_count)){
+	//		fprintf(stderr, "Error loading ball mesh\n");
+	//		return false;
+	//}
+
+	//glGenBuffers(1, &vp_vbo);
+	//glGenBuffers(1, &vu_vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, vu_vbo);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
+
+	//free(points);
+	//free(uvs);
 
 	return true;
 }
 
 void draw_court() {
 	// Use our shader
-	glUseProgram(programID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
 	mat4 projectionMatrix = getProjectionMatrix();
 	mat4 viewMatrix = getViewMatrix();
-	mat4 MVP = projectionMatrix * viewMatrix * modelMatrix;
 
-	// Send our transformation to the currently bound shader, 
-	// in the "MVP" uniform
-	glUniformMatrix4fv(matrixID, 1, GL_FALSE, &MVP[0][0]);
+	// Draw floor
+	glUseProgram(floor_sp);
 
-	// 1st attribute buffer : vertices
-	glEnableVertexAttribArray(0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, court_floor.textureID);
+	glBindVertexArray(floor_vao);
 
-	// 2nd attribute buffer : UVs
-	glEnableVertexAttribArray(1);
+	mat4 MVP = projectionMatrix * viewMatrix * court_floor.model_matrix;
+	glUniformMatrix4fv(floor_mvp, 1, GL_FALSE, &MVP[0][0]);
 
 	// Draw the triangle !
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(floor_vertex_buffer_data) / 12);
-
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void clean_court() {
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteBuffers(1, &uvbuffer);
-	glDeleteProgram(programID);
-	glDeleteTextures(1, &floor_textureID);
-	glDeleteVertexArrays(1, &vertexArrayID);
+	glDeleteProgram(floor_sp);
+	glDeleteVertexArrays(1, &floor_vao);
 }

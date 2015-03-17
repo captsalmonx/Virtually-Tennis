@@ -18,49 +18,52 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="loadShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="obj_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="court.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="loadBMPTexture.cpp">
+    <ClCompile Include="player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
+    <ClCompile Include="gl_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image_write.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="loadShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="obj_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="court.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="loadBMPTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gl_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="court_frag.glsl">
+    <None Include="base.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="court_vert.glsl">
+    <None Include="base.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Assets\tenniscourt.bmp">
+    <Image Include="Assets\tennis-court.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

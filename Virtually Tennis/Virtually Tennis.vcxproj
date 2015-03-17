@@ -69,26 +69,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gl_utils.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="court.cpp" />
-    <ClCompile Include="loadBMPTexture.cpp" />
-    <ClCompile Include="loadShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="obj_parser.cpp" />
+    <ClCompile Include="stb_image_write.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gl_utils.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="court.h" />
-    <ClInclude Include="loadBMPTexture.h" />
-    <ClInclude Include="loadShader.h" />
     <ClInclude Include="obj_parser.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="court_frag.glsl" />
-    <None Include="court_vert.glsl" />
+    <None Include="base.frag" />
+    <None Include="base.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Assets\tenniscourt.bmp" />
+    <Image Include="Assets\tennis-court.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

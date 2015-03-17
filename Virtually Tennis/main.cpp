@@ -13,8 +13,6 @@ GLFWwindow* window;
 #include <glm\gtc\matrix_transform.hpp>
 using namespace glm; // Save having to type glm:: everywhere
 
-#include "loadShader.h"
-#include "loadBMPTexture.h"
 #include "player.h"
 #include "court.h"
 

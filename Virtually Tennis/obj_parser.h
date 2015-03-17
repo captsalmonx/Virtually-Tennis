@@ -15,18 +15,4 @@ bool load_obj_file (
 	int& point_count
 	);
 
-bool createPlane(
-	GLfloat points[],
-	GLfloat uvs[],
-	mat4 * model_matrix,
-	float width, 
-	float height, 
-	float x, 
-	float y, 
-	float z, 
-	float pitch, 
-	float yaw, 
-	float roll
-	);
-
 #endif

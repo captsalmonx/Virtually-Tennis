@@ -22,7 +22,9 @@ mat4 getProjectionMatrix(){
 }
 
 const float playerHeight = 5.0f;
-vec3 position = vec3( 0.0f, playerHeight, 15.0f ); // Initial position pulled back on Z to start near court edge
+const vec3 playerSpawn = vec3(-5.0f, playerHeight, 35.0f);
+
+vec3 position = playerSpawn; // Initial position pulled back on Z to start near court edge
 float horizontalAngle = 3.14f; // Initial horizontal angle towards -Z
 float verticalAngle = 0.0f; // Initial vertical angle 0
 float initialFoV = 45.0f; // Initial Field of View
