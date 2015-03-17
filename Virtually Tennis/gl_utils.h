@@ -9,13 +9,6 @@
 #include <glm\gtc\matrix_transform.hpp>
 using namespace glm; // Save having to type glm:: everywhere
 
-struct plane {
-	mat4 model_matrix;
-	int point_count;
-	GLuint textureID;
-	vec3 pos, rot;
-};
-
 bool start_gl (int width, int height);
 GLuint link_programme_from_files (const char* vs_file_name,
 	const char* fs_file_name);
@@ -29,16 +22,6 @@ void grab_video_frame ();
 bool dump_video_frame ();
 bool dump_video_frames ();
 bool screenshot ();
-
-bool createPlane(
-	plane * planePointer,
-	float*& points,
-	float*& uvs,
-	vec2 dim,
-	vec3 pos,
-	vec3 rot,
-	const char * imagePath
-	);
 
 // check a secondary framebuffer was created okay
 bool verify_bound_framebuffer ();

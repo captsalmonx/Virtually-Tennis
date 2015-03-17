@@ -164,3 +164,91 @@ bool load_obj_file  (
 	);
 	return true;
 }
+
+bool create_plane(
+	object * pl,
+	float*& points, float*& uvs,
+	vec2 dim,	vec3 pos,	vec3 rot
+){
+	pl->pos = pos;
+	pl->rot = rot;
+
+	points = (float*)malloc(12 * sizeof(float));
+	points[0] = -dim.x / 2.0f;	points[1] = -dim.y / 2.0f;	points[2] = 0.0f;
+	points[3] = dim.x / 2.0f;	points[4] = -dim.y / 2.0f;	points[5] = 0.0f;
+	points[6] = -dim.x / 2.0f;	points[7] = dim.y / 2.0f;	points[8] = 0.0f;
+	points[9] = dim.x / 2.0f;	points[10] = dim.y / 2.0f;	points[11] = 0.0f;
+
+	uvs = (float*)malloc(8 * sizeof(float));
+	uvs[0] = 0.0f;	uvs[1] = 0.0f;
+	uvs[2] = 1.0f;	uvs[3] = 0.0f;
+	uvs[4] = 0.0f;	uvs[5] = 1.0f;
+	uvs[6] = 1.0f;	uvs[7] = 1.0f;
+
+	mat4 transMat = translate(mat4(1.0f), pos);
+	mat4 rotXMat = rotate(mat4(1.0f), radians(rot.x), vec3(1, 0, 0));
+	mat4 rotYMat = rotate(mat4(1.0f), radians(rot.y), vec3(0, 1, 0));
+	mat4 rotZMat = rotate(mat4(1.0f), radians(rot.z), vec3(0, 0, 1));
+
+	pl->modelMatrix = transMat * (rotXMat * rotYMat * rotZMat);
+	pl->point_count = 4;
+	return true;
+}
+
+bool bind_object(
+	object * obj,
+	const char * vertShader,
+	const char * fragShader,
+	const char * imagePath,
+	float*& points,
+	float*& uvs,
+	float*& normals
+){
+	GLuint vp_vbo, vu_vbo, vn_vbo;
+
+	glGenBuffers(1, &vp_vbo);
+	glGenBuffers(1, &vu_vbo);
+	glGenBuffers(1, &vn_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glBufferData(GL_ARRAY_BUFFER, obj->point_count * sizeof(float) * 3, points, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vu_vbo);
+	glBufferData(GL_ARRAY_BUFFER, obj->point_count * sizeof(float) * 2, uvs, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	glBufferData(GL_ARRAY_BUFFER, obj->point_count * sizeof(float) * 3, normals, GL_STATIC_DRAW);
+
+	glGenVertexArrays(1, &obj->vao);
+	glBindVertexArray(obj->vao);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, vu_vbo);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	obj->sp = link_programme_from_files( vertShader, fragShader );
+	obj->textureID = create_texture_from_file ( imagePath );
+	obj->mvp = glGetUniformLocation(obj->sp, "MVP");
+
+	free(points);
+	free(uvs);
+	free(normals);
+	return true;
+}
+
+bool draw_object(
+	object * obj,
+	const mat4 projectionMatrix, const mat4 viewMatrix,
+	GLenum drawMode
+){
+	glUseProgram(obj->sp);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, obj->textureID);
+	glBindVertexArray(obj->vao);
+	mat4 MVP = projectionMatrix * viewMatrix * obj->modelMatrix;
+	glUniformMatrix4fv(obj->mvp, 1, GL_FALSE, &MVP[0][0]);
+	glDrawArrays(drawMode, 0, obj->point_count);
+	return true;
+}

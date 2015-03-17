@@ -371,38 +371,3 @@ bool screenshot () {
 	free (buffer);
 	return true;
 }
-
-bool createPlane(
-	plane * pl,
-	float*& points,
-	float*& uvs,
-	vec2 dim,
-	vec3 pos,
-	vec3 rot,
-	const char * imagePath
-){
-	pl->pos = pos;
-	pl->rot = rot;
-
-	points = (float*)malloc(12 * sizeof(float));
-	points[0] = -dim.x / 2.0f;	points[1] = -dim.y / 2.0f;	points[2] = 0.0f;
-	points[3] = dim.x / 2.0f;	points[4] = -dim.y / 2.0f;	points[5] = 0.0f;
-	points[6] = -dim.x / 2.0f;	points[7] = dim.y / 2.0f;	points[8] = 0.0f;
-	points[9] = dim.x / 2.0f;	points[10] = dim.y / 2.0f;	points[11] = 0.0f;
-
-	uvs = (float*)malloc(8 * sizeof(float));
-	uvs[0] = 0.0f;	uvs[1] = 0.0f;
-	uvs[2] = 1.0f;	uvs[3] = 0.0f;
-	uvs[4] = 0.0f;	uvs[5] = 1.0f;
-	uvs[6] = 1.0f;	uvs[7] = 1.0f;
-
-	mat4 transMat = translate(mat4(1.0f), pos);
-	mat4 rotXMat = rotate(mat4(1.0f), radians(rot.x), vec3(1, 0, 0));
-	mat4 rotYMat = rotate(mat4(1.0f), radians(rot.y), vec3(0, 1, 0));
-	mat4 rotZMat = rotate(mat4(1.0f), radians(rot.z), vec3(0, 0, 1));
-
-	pl->model_matrix = transMat * (rotXMat * rotYMat * rotZMat);
-	pl->textureID = create_texture_from_file(imagePath);
-	pl->point_count = 4;
-	return true;
-}

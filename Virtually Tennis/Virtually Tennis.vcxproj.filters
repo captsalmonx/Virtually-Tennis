@@ -55,16 +55,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="base.frag">
+    <None Include="Shaders\base.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="base.vert">
+    <None Include="Shaders\base.vert">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\tennis-court.png">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

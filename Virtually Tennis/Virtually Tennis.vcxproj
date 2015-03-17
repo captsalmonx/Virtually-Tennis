@@ -85,11 +85,8 @@
     <ClInclude Include="stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="base.frag" />
-    <None Include="base.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\tennis-court.png" />
+    <None Include="Shaders\base.frag" />
+    <None Include="Shaders\base.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
