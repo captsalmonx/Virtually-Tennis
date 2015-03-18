@@ -40,7 +40,7 @@ bool init_court() {
 	setBall(&ball);
 
 	// CREATE FLOOR
-	if(!create_plane(&court, points, uvs, court_dimensions, vec3(0.0f, 0.0f, 0.0f),	vec3(-70.0f, 0.0f, 0.0f))){
+	if(!create_plane(&court, points, uvs, court_dimensions, vec3(0.0f, 0.0f, 0.0f),	vec3(-90.0f, 0.0f, 0.0f))){
 		fprintf(stderr, "Error loading court\n");
 		return false;
 	}
@@ -57,29 +57,22 @@ bool init_court() {
 }
 
 void update_ball(float delta) {
-	// Add gravity
+	ball.vel += gravity * delta;
+	checkCollision_ball(delta);
 
-	if(!hit){
-		ball.vel += gravity * delta;
-		ball.obj.pos += ball.vel * delta;
-		checkCollision_ball(delta);
-	}
-
+	ball.obj.pos += ball.vel * delta;
+	
 	if (glfwGetKey( window, GLFW_KEY_R ) == GLFW_PRESS){
-		ball.obj.pos = vec3(-2.0f, 5.0f, 27.0f);
-		ball.vel = vec3(0.0f, 0.0f, 0.0f);
+		ball.obj.pos = ball_spawn;
+		ball.vel = vec3(0.0f);
 		hit = false;
 	}
-
 }
 
 bool checkCollision_ball(float delta){
-	//vec3 pPosition = vec3(0, 0, 0);
-	//vec3 pNormal = vec3(0, 1, 0);
 
 	if(planeObjectCollision(court.obj.pos, court.obj.rot, court.dim, &ball.obj.pos, &ball.vel, delta)){
-		//ball.obj.pos += -2.0f * pNormal * ball.obj.pos;
-		//ball.vel = ball.vel - (2.0f * (dot(ball.vel, pNormal) * pNormal));
+		printf("%f\n", delta);
 		return true;
 	}
 
