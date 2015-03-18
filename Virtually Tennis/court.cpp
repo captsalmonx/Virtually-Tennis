@@ -72,7 +72,6 @@ void update_ball(float delta) {
 bool checkCollision_ball(float delta){
 
 	if(planeObjectCollision(court.obj.pos, court.obj.rot, court.dim, &ball.obj.pos, &ball.vel, delta)){
-		printf("%f\n", delta);
 		return true;
 	}
 
