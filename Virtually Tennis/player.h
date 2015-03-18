@@ -3,7 +3,8 @@
 
 void init_player();
 void update_player(float delta);
-void setSwingFunction(void (*swingFunction)(float));
+void setBall(dynamicObject * ballPointer);
+bool swingCheck();
 mat4 getViewMatrix();
 mat4 getProjectionMatrix();
 

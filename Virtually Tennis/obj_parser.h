@@ -20,12 +20,17 @@ struct object {
 	vec3 pos, rot;
 };
 
-struct dynamicObject {
+struct plane {
 	object obj;
-	vec3 dir, vel;
+	vec2 dim;
 };
 
-bool create_plane(object * planePointer, 
+struct dynamicObject {
+	object obj;
+	vec3 vel;
+};
+
+bool create_plane(plane * planePointer, 
 	float*& points, float*& uvs,
 	vec2 dim, vec3 pos, vec3 rot
 	);
@@ -53,6 +58,8 @@ bool draw_object (
 	mat4 projectionMatrix, mat4 viewMatrix,
 	GLenum drawMode
 	);
+
+mat4 getRotationMatrix(vec3 rot);
 
 bool delete_object (
 	object * obj

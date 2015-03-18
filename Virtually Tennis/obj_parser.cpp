@@ -166,12 +166,12 @@ bool load_obj_file  (
 }
 
 bool create_plane(
-	object * pl,
+	plane * pl,
 	float*& points, float*& uvs,
 	vec2 dim,	vec3 pos,	vec3 rot
 ){
-	pl->pos = pos;
-	pl->rot = rot;
+	pl->obj.pos = pos;
+	pl->obj.rot = rot;
 
 	points = (float*)malloc(12 * sizeof(float));
 	points[0] = -dim.x / 2.0f;	points[1] = -dim.y / 2.0f;	points[2] = 0.0f;
@@ -185,9 +185,10 @@ bool create_plane(
 	uvs[4] = 0.0f;	uvs[5] = 1.0f;
 	uvs[6] = 1.0f;	uvs[7] = 1.0f;
 
-	pl->pos = pos;
-	pl->rot = rot;
-	pl->point_count = 4;
+	pl->obj.pos = pos;
+	pl->obj.rot = rot;
+	pl->dim = dim;
+	pl->obj.point_count = 4;
 	return true;
 }
 
@@ -245,14 +246,21 @@ bool draw_object(
 	glBindVertexArray(obj->vao);
 
 	mat4 T = translate(mat4(1.0f), obj->pos);
-	mat4 Rx = rotate(mat4(1.0f), radians(obj->rot.x), vec3(1, 0, 0));
-	mat4 Ry = rotate(mat4(1.0f), radians(obj->rot.y), vec3(0, 1, 0));
-	mat4 Rz = rotate(mat4(1.0f), radians(obj->rot.z), vec3(0, 0, 1));
+	mat4 R = getRotationMatrix(obj->rot);
 
-	mat4 MVP = projectionMatrix * viewMatrix * (T * (Rx * Ry * Rz));
+	mat4 MVP = projectionMatrix * viewMatrix * (T * R);
 	glUniformMatrix4fv(obj->mvp, 1, GL_FALSE, &MVP[0][0]);
 	glDrawArrays(drawMode, 0, obj->point_count);
 	return true;
+}
+
+mat4 getRotationMatrix(vec3 rot)
+{
+	mat4 Rx = rotate(mat4(1.0f), radians(rot.x), vec3(1, 0, 0));
+	mat4 Ry = rotate(mat4(1.0f), radians(rot.y), vec3(0, 1, 0));
+	mat4 Rz = rotate(mat4(1.0f), radians(rot.z), vec3(0, 0, 1));
+
+	return Rx * Ry * Rz;
 }
 
 bool delete_object(
