@@ -1,9 +1,12 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-void init_player();
+#include "obj_parser.h"
+
+bool init_player();
 void update_player(float delta);
 void setBall(object * ballPointer);
+void setDimensions(const vec2 * dimPointer);
 bool isBallOnScreen();
 bool isBallNearPlayer();
 mat4 getViewMatrix();

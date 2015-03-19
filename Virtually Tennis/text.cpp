@@ -383,10 +383,26 @@ bool update_text (int id, const char* str) {
 	return true;
 }
 
+bool change_text_position(int id, float x, float y){
+	renderable_texts[id].x = x;
+	renderable_texts[id].y = y;
+	return true;
+}
+
+bool change_text_size(int id, float size){
+	renderable_texts[id].size_px = size;
+	return true;
+}
+
 bool change_text_colour (int id, float r, float g, float b, float a) {
 	renderable_texts[id].r = r;
 	renderable_texts[id].g = g;
 	renderable_texts[id].b = b;
+	renderable_texts[id].a = a;
+	return true;
+}
+
+bool change_text_alpha (int id, float a) {
 	renderable_texts[id].a = a;
 	return true;
 }

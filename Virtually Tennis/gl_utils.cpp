@@ -381,7 +381,6 @@ float randRange(float a, float b){
 	float low = min(a, b);
 	float high = max(a, b);
 
-	printf("%f\n", low);
 	// Generates a float between 0 and 1, and then converts that to the float range specified
 	return ((float)rand() / (float)RAND_MAX) * (high - low) + low;
 }

@@ -1,3 +1,4 @@
+#include <ctime>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -17,7 +18,7 @@ using namespace glm; // Save having to type glm:: everywhere
 
 #include "gl_utils.h"
 #include "obj_parser.h"
-#include "player.h"
+#include "game.h"
 #include "court.h"
 #include "text.h"
 
@@ -26,6 +27,9 @@ using namespace glm; // Save having to type glm:: everywhere
 
 int main( void )
 {
+	// Seed the random generator
+	srand(static_cast <unsigned>(time(0)));
+
 	// Initialise GLFW
 	if( !glfwInit() ){
 		fprintf( stderr, "Failed to initialize GLFW\n" );
@@ -62,9 +66,9 @@ int main( void )
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 
 	// Paint the background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -75,19 +79,14 @@ int main( void )
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT));
 
-	init_player();
-	init_court();
+	init_game();
 	
 	do {
 		static double lastTime = glfwGetTime();
 		double currentTime = glfwGetTime();
 		float deltaTime = float(currentTime - lastTime);
-
-		update_player(deltaTime);
-		update_ball(deltaTime);
 		
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		draw_court();
+		update_game(deltaTime);
 
 		glClear( GL_DEPTH_BUFFER_BIT );
 		draw_texts();

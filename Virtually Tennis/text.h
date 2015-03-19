@@ -40,6 +40,10 @@ bool update_text (int id, const char* str);
 // change colour of any previously added text
 bool change_text_colour (int id, float r, float g, float b, float a);
 
+bool change_text_position(int id, float x, float y);
+bool change_text_alpha (int id, float a);
+bool change_text_size(int id, float size);
+
 //
 // draw all the texts to screen
 void draw_texts ();

@@ -70,7 +70,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="gl_utils.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="court.cpp" />
     <ClCompile Include="main.cpp" />
@@ -80,7 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="collision.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="gl_utils.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="court.h" />
     <ClInclude Include="obj_parser.h" />
