@@ -25,6 +25,8 @@ bool screenshot ();
 
 // check a secondary framebuffer was created okay
 bool verify_bound_framebuffer ();
+float randRange(float a, float b);
+int randRange(int a, int b);
 
 extern int gl_width;
 extern int gl_height;

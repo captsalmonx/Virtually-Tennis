@@ -196,7 +196,6 @@ bool bind_object(
 	object * obj,
 	const char * vertShader,
 	const char * fragShader,
-	const char * imagePath,
 	float*& points,
 	float*& uvs,
 	float*& normals
@@ -226,7 +225,6 @@ bool bind_object(
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	obj->sp = link_programme_from_files( vertShader, fragShader );
-	obj->textureID = create_texture_from_file ( imagePath );
 	obj->mvp = glGetUniformLocation(obj->sp, "MVP");
 
 	free(points);

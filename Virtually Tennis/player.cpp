@@ -9,6 +9,7 @@ extern GLFWwindow* window; // The "extern" keyword here is to access the variabl
 using namespace glm; // Allow us to not have to type glm::
 
 #include "obj_parser.h"
+#include "collision.h"
 #include "player.h"
 #include "text.h"
 #include "gl_utils.h"
@@ -29,21 +30,26 @@ mat4 getProjectionMatrix(){
 	return ProjectionMatrix;
 }
 
-dynamicObject * ball; // constant reference to ball
-void setBall(dynamicObject * ballPointer){
+object * ball; // constant reference to ball
+void setBall(object * ballPointer){
 	ball = ballPointer;
 }
 
-const float playerHeight = 4.0f;
-const vec3 playerSpawn = vec3(-5.0f, playerHeight, 35.0f);
+#define PLAYERHEIGHT 4.0f
+#define PLAYERSPAWN vec3(-5.0f, PLAYERHEIGHT, 35.0f)
+#define MOVESPEED 15.0f
+#define ROTATESPEED 0.005f
 
-vec3 position = playerSpawn; // Initial position pulled back on Z to start near court edge
+#define SWINGPOWER 35.0f
+#define SWINGACCEL 4.0f
+
+vec3 position = PLAYERSPAWN; // Initial position pulled back on Z to start near court edge
 vec3 direction;
 
 float horizontalAngle = 3.14f; // Initial horizontal angle towards -Z
 float verticalAngle = 0.0f; // Initial vertical angle 0
-float moveSpeed = 15.0f, mouseSpeed = 0.005f; // Mouse/camera rotation speed
-float power = 2.0f, powerVelocity = 0.0f, powerAcceleration = 0.1f;
+float swing, swingVelocity;
+bool swingHit;
 
 int powerText;
 
@@ -79,8 +85,8 @@ void update_player(float delta)
 	glfwSetCursorPos(window, width / 2, height / 2);
 
 	// Compute new orientation
-	horizontalAngle += mouseSpeed * float( width / 2 - xpos );
-	verticalAngle   += mouseSpeed * float( height / 2 - ypos );
+	horizontalAngle += ROTATESPEED * float( width / 2 - xpos );
+	verticalAngle   += ROTATESPEED * float( height / 2 - ypos );
 
 	// Direction: Spherical coordinates to Cartesian coordinates conversion
 	direction = vec3(
@@ -103,25 +109,45 @@ void update_player(float delta)
 
 	// Move forward
 	if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS){
-		position += direction * delta * moveSpeed; 
+		position += direction * delta * MOVESPEED; 
 	}
 	if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS){
-		position -= direction * delta * moveSpeed; 
+		position -= direction * delta * MOVESPEED; 
 	}
 	if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS){
-		position += right * delta * moveSpeed;
+		position += right * delta * MOVESPEED;
 	}
 	if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
-		position -= right * delta * moveSpeed;
+		position -= right * delta * MOVESPEED;
 	}
 
-	if (glfwGetMouseButton( window, GLFW_RELEASE )){
-		if(swingCheck()){
-			ball->vel = ball->vel - (2.0f * (dot(ball->vel, direction) * direction));	
+	char tmp[52];
+	if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_PRESS){
+		if(swing <= 0.0f){
+			swingHit = isBallOnScreen();
 		}
+		swingVelocity += SWINGACCEL * delta;
+		swing += swingVelocity * delta;
+		swing = min(swing, 1.0f);
+
+		sprintf(tmp, "%02f", swing);
+		update_text(powerText, tmp);
+	}
+	else if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_RELEASE && swing > 0.0f){
+		if(swingHit && isBallNearPlayer()){
+			vec3 ballDir = normalize(ball->pos - position);
+			vec3 swingVec = direction * SWINGPOWER;
+			vec3 swingRef = reflectVelocity(ball->vel, ballDir);
+
+			ball->vel += (swingVec * swing) + (swingRef * (1.0f - swing));	
+		}
+		sprintf(tmp, "%02f RELEASE!", swing);
+		update_text(powerText, tmp);
+		swing = 0.0f;
+		swingVelocity = 0.0f;
 	}
 
-	position.y = playerHeight; // Throttle the player to remain on ground
+	position.y = PLAYERHEIGHT; // Throttle the player to remain on ground
 
 	// Camera/view matrix
 	ViewMatrix = lookAt(
@@ -131,8 +157,12 @@ void update_player(float delta)
 		);
 }
 
-bool swingCheck()
+bool isBallOnScreen()
 {
-	return dot(direction, normalize(ball->obj.pos - position)) >= 0.9f &&
-		distance(ball->obj.pos, position) <= 5.0f;
+	return dot(direction, normalize(ball->pos - position)) >= 0.9f;
+}
+
+bool isBallNearPlayer()
+{
+	return distance(ball->pos, position) <= 5.0f;
 }

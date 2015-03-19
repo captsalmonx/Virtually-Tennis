@@ -3,8 +3,9 @@
 
 void init_player();
 void update_player(float delta);
-void setBall(dynamicObject * ballPointer);
-bool swingCheck();
+void setBall(object * ballPointer);
+bool isBallOnScreen();
+bool isBallNearPlayer();
 mat4 getViewMatrix();
 mat4 getProjectionMatrix();
 

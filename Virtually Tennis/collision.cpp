@@ -19,13 +19,18 @@ bool planeObjectCollision(vec3 pPosition, vec3 pRotation, vec2 pDimensions,
 		vec3 hitPosition = *oPosition + (oDirection * collDistance);
 		vec3 unrotHitPos = (vec3)(-rotMatrix * vec4(hitPosition, 1));
 
-		if(unrotHitPos.x <= pPosition.x + (pDimensions.x / 2) && unrotHitPos.x >= pPosition.x - (pDimensions.x / 2) &&
-			unrotHitPos.y <= pPosition.y + (pDimensions.y / 2) && unrotHitPos.y >= pPosition.y - (pDimensions.y / 2)){
-			*oVelocity = *oVelocity - (2.0f * dot(*oVelocity, pNormal) * pNormal);
+		if(unrotHitPos.x <= pPosition.x + (pDimensions.x / 2) && unrotHitPos.x >= pPosition.x - (pDimensions.x / 2) && 
+		unrotHitPos.y <= pPosition.y + (pDimensions.y / 2) && unrotHitPos.y >= pPosition.y - (pDimensions.y / 2)){
+			*oVelocity = reflectVelocity(*oVelocity, pNormal);
 			*oPosition = hitPosition + (normalize(*oVelocity) * collDistance);
 			collided = true;
 		}
 	}
 	
 	return collided;
+}
+
+vec3 reflectVelocity(vec3 velocity, vec3 normal)
+{
+	return velocity - (2.0f * dot(velocity, normal) * normal);
 }

@@ -61,11 +61,13 @@ int main( void )
 	// Accept fragment if it is closer to the camera than any other
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	// Paint the background
-	glClearColor(0.1f, 0.2f, 0.2f, 0.0f);
+
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
+
+	// Paint the background
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	assert(init_text_rendering(
 		"Fonts/freemono.png",

@@ -17,17 +17,12 @@ using namespace glm; // Allow us to not have to type glm::
 struct object {
 	int point_count;
 	GLuint vao, sp, mvp, textureID;
-	vec3 pos, rot;
+	vec3 pos, rot, vel;
 };
 
 struct plane {
 	object obj;
 	vec2 dim;
-};
-
-struct dynamicObject {
-	object obj;
-	vec3 vel;
 };
 
 bool create_plane(plane * planePointer, 
@@ -39,7 +34,6 @@ bool bind_object(
 	object * obj,
 	const char * vertShader,
 	const char * fragShader,
-	const char * imagePath,
 	float*& points,
 	float*& uvs,
 	float*& normals

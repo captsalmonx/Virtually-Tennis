@@ -5,6 +5,11 @@
 #include "stb_image_write.h"
 #include <stdio.h>
 
+// Include GLM (OpenGL Mathematics)
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+using namespace glm; // Save having to type glm:: everywhere
+
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -370,4 +375,20 @@ bool screenshot () {
 	}
 	free (buffer);
 	return true;
+}
+
+float randRange(float a, float b){
+	float low = min(a, b);
+	float high = max(a, b);
+
+	printf("%f\n", low);
+	// Generates a float between 0 and 1, and then converts that to the float range specified
+	return ((float)rand() / (float)RAND_MAX) * (high - low) + low;
+}
+
+int randRange(int a, int b){
+	int low = min(a, b);
+	int high = max(a, b);
+
+	return (rand() / RAND_MAX) * (high - low) + low;
 }
