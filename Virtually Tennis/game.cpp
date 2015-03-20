@@ -15,7 +15,10 @@ extern GLFWwindow* window; // The "extern" keyword here is to access the variabl
 #define FRAG_SHADER "Shaders/bg.frag"
 #define BG_IMAGE "Assets/sky.png"
 
-GLuint bg_sp, bg_texID;
+const char* bg_textures[3] = {"Assets/sky_1.png", "Assets/sky_2.png", "Assets/sky_3.png"};
+int bg_texIDs[3];
+
+GLuint bg_sp;
 
 float timer = GAMELENGTH;
 int score = 0, combo = 0, comboMax = 0;
@@ -25,6 +28,9 @@ bool * inGamePointer;
 
 char * difficulties[3] = { "Easy", "Medium", "Hard" };
 int difficultyIndex = 0;
+
+char * levels[3] = { "Sky", "Ocean", "Hell" };
+int levelIndex = 0;
 
 char * getDifficulty(){
 	return difficulties[difficultyIndex];
@@ -36,6 +42,19 @@ char * cycleDifficulty(){
 		difficultyIndex = 0;
 
 	return difficulties[difficultyIndex];
+}
+
+char * getLevel(){
+	return levels[levelIndex];
+}
+
+char * cycleLevel(){
+	levelIndex++;
+	if(levelIndex > sizeof(levels) / sizeof(char*) - 1)
+		levelIndex = 0;
+
+
+	return levels[levelIndex];
 }
 
 bool gameOver;
@@ -68,7 +87,10 @@ bool init_game(bool * inGame)
 	inGamePointer = inGame;
 
 	bg_sp = link_programme_from_files(VERT_SHADER, FRAG_SHADER);
-	bg_texID = create_texture_from_file(BG_IMAGE);
+
+	for(int i = 0; i < 3; i++){
+		bg_texIDs[i] = create_texture_from_file(bg_textures[i]);
+	}
 
 	texts[0] = add_text (
 		"Score: ", 
@@ -88,7 +110,7 @@ bool init_game(bool * inGame)
 		1.0f, 1.0f, 1.0f, 1.0f
 		);
 	
-	return init_player() && init_court(&score, &combo, &difficultyIndex);
+	return init_player() && init_court(&score, &combo, &difficultyIndex, &levelIndex);
 }
 
 void reset_game()
@@ -125,7 +147,7 @@ void update_game(float deltaTime)
 
 	glUseProgram(bg_sp);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, bg_texID);
+	glBindTexture(GL_TEXTURE_2D, bg_texIDs[levelIndex]);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glClear( GL_DEPTH_BUFFER_BIT );

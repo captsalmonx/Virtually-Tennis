@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <random>
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <time.h>
 // Include GLFW
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -8,15 +14,12 @@ extern GLFWwindow* window; // The "extern" keyword here is to access the variabl
 #include <glm\gtc\matrix_transform.hpp>
 using namespace glm; // Allow us to not have to type glm::
 
+#include "court.h"
 #include "obj_parser.h"
 #include "collision.h"
 #include "player.h"
 #include "text.h"
 #include "gl_utils.h"
-
-#include <stdio.h>
-//#include <stdlib.h>
-#include <time.h>
 
 // Variables to be passed back into the game loop in main.cpp
 mat4 ViewMatrix;
@@ -47,7 +50,6 @@ void setDimensions(const vec2 * dimPointer){
 
 #define SWINGPOWER 35.0f
 #define SWINGACCEL 20.0f
-
 
 vec3 position = PLAYERSPAWN; // Initial position pulled back on Z to start near court edge
 vec3 direction;
@@ -147,12 +149,8 @@ void update_player(float delta)
 	}
 	else if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_RELEASE && swing > 0.0f){
 		if(isBallNearPlayer()){
-			vec3 ballDir = normalize(ball->pos - position);
-			vec3 swingVec = direction * SWINGPOWER;
-			vec3 swingRef = reflectVelocity(ball->vel, ballDir);
-
-			ball->vel = (swingVec * swing) + (swingRef * (1.0f - swing));	
-		}
+			hitBall(position, direction, SWINGPOWER, swing);
+		}else missBall();
 		swing = 0.0f;
 		swingVelocity = 0.0f;
 		change_text_alpha(powerText, swing);

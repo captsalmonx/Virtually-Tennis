@@ -19,8 +19,9 @@ extern GLFWwindow* window; // The "extern" keyword here is to access the variabl
 
 GLuint menu_sp, menu_texID;
 
-int options[3];
-char * optionText[3] = { "Start Game", "Difficulty: ", "Exit Game" };
+int options[4];
+int miniText[2];
+char * optionText[4] = { "Start Game", "Difficulty", "Level", "Exit Game" };
 int optionIndex = 0;
 
 int keyIndex = -1;
@@ -43,20 +44,37 @@ bool init_menu(bool * inGame)
 
 	options[0] = add_text(
 		optionText[0],
-		-0.9f, 0.1f, 150.0f,
+		-0.9f, 0.3f, 150.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 		);
 
 	optionText[1] = getDifficulty();
 	options[1] = add_text(
-		optionText[1] ,
-		-0.9f, -0.2f, 150.0f,
+		optionText[1],
+		-0.9f, 0.0f, 150.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 		);
+	miniText[0] = add_text(
+		"Difficulty:",
+		-0.91f, 0.05f, 80.0f,
+		0.5f, 0.5f, 0.5f, 1.0f
+		);
 
+	optionText[2] = getLevel();
 	options[2] = add_text(
 		optionText[2],
-		-0.9f, -0.5f, 150.0f,
+		-0.9f, -0.3f, 150.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
+		);
+	miniText[1] = add_text(
+		"Level:",
+		-0.91f, -0.25f, 80.0f,
+		0.5f, 0.5f, 0.5f, 1.0f
+		);
+
+	options[3] = add_text(
+		optionText[3],
+		-0.9f, -0.6f, 150.0f,
 		1.0f, 1.0f, 1.0f, 1.0f
 		);
 
@@ -115,8 +133,13 @@ void handle_keyPress(int key)
 						update_text(options[optionIndex], optionText[optionIndex]);
 					break;
 
-					// Exit
 					case 2:
+						optionText[optionIndex] = cycleLevel();
+						update_text(options[optionIndex], optionText[optionIndex]);
+					break;
+
+					// Exit
+					case 3:
 						glfwSetWindowShouldClose (window, 1);
 					break;
 				};
@@ -168,6 +191,9 @@ void draw_menu()
 	if(!*gameOver){
 		for(int i = 0; i < sizeof(options) / sizeof(int); i++){
 			draw_text(options[i]);
+		}
+		for(int i = 0; i < sizeof(miniText) / sizeof(int); i++){
+			draw_text(miniText[i]);
 		}
 	}else{
 		draw_text(gameOverText);

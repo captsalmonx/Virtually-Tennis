@@ -4,6 +4,8 @@
 bool init_game(bool * inGame);
 char * getDifficulty();
 char * cycleDifficulty();
+char * getLevel();
+char * cycleLevel();
 bool * getGameOverPointer();
 int getScore();
 int getCombo();

@@ -19,35 +19,45 @@ using namespace glm; // Save having to type glm:: everywhere
 #include "text.h"
 #include "court.h"
 #include "collision.h"
+#include "audioPlayer.h"
 
 #define VERT_SHADER "Shaders/base.vert"
 #define FRAG_SHADER "Shaders/base.frag"
 
 #define BALL_MESH "Assets/ball.obj"
-#define BALL_TEXTURE "Assets/ball.jpg"
+#define BALL_SOUND_COURT "Assets/ball.wav"
+#define BALL_SOUND_TARGET "Assets/target.wav"
 #define BALL_SPAWN vec3(-2.0f, 5.0f, 27.0f)
 #define GRAVITY vec3(0.0f, -32.0f, 0.0f)
 
-#define COURT_TEXTURE "Assets/tennis-court.png"
 const vec2 court_dimensions = vec2(36.0f, 78.0f);
 
 #define TARGET_EDGEBUFFER 0.1f
 #define TARGET_SPAWNPROB 0.5f
+#define TARGET_SOUND "Assets/spawn.ogg"
+
+#define HIT_SOUND "Assets/swing.wav"
+#define MISS_SOUND "Assets/miss.flac"
+
+const char* ball_textures[3] = {"Assets/ball_1.png", "Assets/ball_2.png", "Assets/ball_3.png"};
+int ball_texIDs[3];
+const char* court_textures[3] = {"Assets/court_1.png", "Assets/court_2.png", "Assets/court_3.png"};
+int court_texIDs[3];
 
 const float target_ranges[3] = { 5.0f, 10.0f, 25.0f };
 const char* target_textures[3] = {"Assets/target_1.png", "Assets/target_2.png", "Assets/target_3.png"};
 const vec2 target_dimensions[3] = {vec2(6.0f, 9.0f), vec2(7.0f, 11.0f), vec2(8.0f, 9.0f)};
-int target_texIDs[sizeof(target_textures) / sizeof(char*)];
+int target_texIDs[3];
 
 plane court;
 plane targets[10]; // Maximum 10 targets
 object ball;
 
-int *scorePointer, *comboPointer, *difficultyPointer;
+int *scorePointer, *comboPointer, *difficultyPointer, *levelPointer;
 
 bool hit = false;
 
-bool init_court(int * score, int * combo, int * difficulty) {
+bool init_court(int * score, int * combo, int * difficulty, int * level) {
 	float* points = NULL;
 	float* uvs = NULL;
 	float* normals = NULL;
@@ -57,6 +67,7 @@ bool init_court(int * score, int * combo, int * difficulty) {
 	scorePointer = score;
 	comboPointer = combo;
 	difficultyPointer = difficulty;
+	levelPointer = level;
 
 	// CREATE FLOOR
 	if(!create_plane(&court, points, uvs, normals, court_dimensions, vec3(0.0f, 0.0f, 0.0f),	vec3(-90.0f, 0.0f, 0.0f))){
@@ -64,7 +75,6 @@ bool init_court(int * score, int * combo, int * difficulty) {
 		return false;
 	}
 	bind_object(&court.obj, VERT_SHADER, FRAG_SHADER, points, uvs, normals);
-	court.obj.textureID = create_texture_from_file(COURT_TEXTURE);;
 
 	// CREATE BALL
 	if(!load_obj_file(BALL_MESH, points, uvs, normals,	ball.point_count)){
@@ -72,11 +82,12 @@ bool init_court(int * score, int * combo, int * difficulty) {
 		return false;
 	}
 	bind_object(&ball, VERT_SHADER, FRAG_SHADER, points, uvs, normals);
-	ball.textureID = create_texture_from_file(BALL_TEXTURE);
 	ball.pos = BALL_SPAWN;
 
-	// CREATE TARGETS
+	// CREATE TEXTURES
 	for(int i = 0; i < 3; i++){
+		ball_texIDs[i] = create_texture_from_file(ball_textures[i]);
+		court_texIDs[i] = create_texture_from_file(court_textures[i]);
 		target_texIDs[i] = create_texture_from_file(target_textures[i]);
 	}
 
@@ -87,12 +98,14 @@ void reset_court(){
 	ball.pos = BALL_SPAWN;
 	ball.vel = vec3(0.0f);
 
+	court.obj.textureID = court_texIDs[*levelPointer];
+	ball.textureID = ball_texIDs[*levelPointer];
+
 	for(int i = 0; i < sizeof(targets) / sizeof(plane); i++){
 		if(targets[i].dim.x > 0.0f){
 			delete_target(&targets[i]);
 		}
 	}
-
 }
 
 bool create_target(){
@@ -153,11 +166,26 @@ void update_targets(float delta){
 		if(targets[i].dim.x == 0.0f){
 			int randomValue = rand() % (int)((TARGET_SPAWNPROB / delta) * ((i + 1) * (i + 1) / 2.0f));
 			if(randomValue == 0){
-				create_target();
+				if(create_target()){
+					playSound(TARGET_SOUND);
+				}
 			}
 			break;
 		}
 	}
+}
+
+void hitBall(vec3 position, vec3 direction, float power, float swing){
+	vec3 ballDir = normalize(ball.pos - position);
+	vec3 swingVec = direction * power;
+	vec3 swingRef = reflectVelocity(ball.vel, ballDir);
+
+	ball.vel = (swingVec * swing) + (swingRef * (1.0f - swing));
+	playSound(HIT_SOUND);
+}
+
+void missBall(){
+	playSound(MISS_SOUND);
 }
 
 void delete_target(plane * target){
@@ -185,6 +213,7 @@ void reset_ball(){
 
 bool checkCollision_ball(float delta){
 	if(planeObjectCollision(court.obj.pos, court.obj.rot, court.dim, &ball.pos, &ball.vel, delta)){
+		playSound(BALL_SOUND_COURT);
 		return true;
 	}
 
@@ -195,6 +224,7 @@ bool checkCollision_ball(float delta){
 				*comboPointer += 1;
 				*scorePointer += *comboPointer;
 				checkCombo();
+				playSound(BALL_SOUND_TARGET);
 				return true;
 			}
 		}

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <iostream>
 
 // Include GLEW (OpenGL Extension Wrangler)
 #include <GL\glew.h>
@@ -18,6 +19,7 @@ using namespace glm; // Save having to type glm:: everywhere
 
 #include "gl_utils.h"
 #include "obj_parser.h"
+#include "audioPlayer.h"
 #include "menu.h"
 #include "game.h"
 #include "court.h"
@@ -69,9 +71,9 @@ int main( void )
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 
 	// Paint the background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -81,7 +83,8 @@ int main( void )
 		"Fonts/freemono.meta",
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT));
-
+	
+	init_audioPlayer();
 	init_game(&inGame);
 	init_menu(&inGame);
 	
