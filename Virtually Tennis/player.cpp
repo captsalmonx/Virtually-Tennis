@@ -72,7 +72,7 @@ bool init_player()
 		1.0f, 1.0f, 1.0f, 0.0f
 	);
 	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	ProjectionMatrix = perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+	ProjectionMatrix = perspective(45.0f, 4.0f / 3.0f, 0.1f, 200.0f);
 	return true;
 }
 

@@ -59,7 +59,7 @@ bool init_court(int * score, int * combo, int * difficulty) {
 	difficultyPointer = difficulty;
 
 	// CREATE FLOOR
-	if(!create_plane(&court, points, uvs, court_dimensions, vec3(0.0f, 0.0f, 0.0f),	vec3(-90.0f, 0.0f, 0.0f))){
+	if(!create_plane(&court, points, uvs, normals, court_dimensions, vec3(0.0f, 0.0f, 0.0f),	vec3(-90.0f, 0.0f, 0.0f))){
 		fprintf(stderr, "Error loading court\n");
 		return false;
 	}
@@ -99,6 +99,7 @@ bool create_target(){
 	float* points = NULL;
 	float* uvs = NULL;
 	float* normals = NULL;
+
 	bool inactiveTarget = false;
 	int i, iref;
 	vec3 position, rotation;
@@ -132,7 +133,7 @@ bool create_target(){
 	rotation.y = randRange(-target_ranges[*difficultyPointer] / 2, target_ranges[*difficultyPointer] / 2);
 	rotation.z = 180.0f;
 
-	if(!create_plane(&targets[i], points, uvs, target_dimensions[iref], position, rotation)){
+	if(!create_plane(&targets[i], points, uvs, normals, target_dimensions[iref], position, rotation)){
 		fprintf(stderr, "Error loading target\n");
 		return false;
 	}

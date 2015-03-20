@@ -16,7 +16,7 @@ using namespace glm; // Allow us to not have to type glm::
 
 struct object {
 	int point_count;
-	GLuint vao, sp, mvp, textureID;
+	GLuint vao, sp, m, v, p, textureID;
 	vec3 pos, rot, vel;
 };
 
@@ -26,7 +26,7 @@ struct plane {
 };
 
 bool create_plane(plane * planePointer, 
-	float*& points, float*& uvs,
+	float*& points, float*& uvs, float*& normals,
 	vec2 dim, vec3 pos, vec3 rot
 	);
 

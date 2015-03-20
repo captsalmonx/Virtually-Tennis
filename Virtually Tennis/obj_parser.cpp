@@ -167,8 +167,8 @@ bool load_obj_file  (
 
 bool create_plane(
 	plane * pl,
-	float*& points, float*& uvs,
-	vec2 dim,	vec3 pos,	vec3 rot
+	float*& points, float*& uvs, float*& normals,
+	vec2 dim, vec3 pos,	vec3 rot
 ){
 	pl->obj.pos = pos;
 	pl->obj.rot = rot;
@@ -184,6 +184,14 @@ bool create_plane(
 	uvs[2] = 1.0f;	uvs[3] = 0.0f;
 	uvs[4] = 0.0f;	uvs[5] = 1.0f;
 	uvs[6] = 1.0f;	uvs[7] = 1.0f;
+
+	normals = (float*)malloc (12 * sizeof (float));
+	mat4 rotMatrix = getRotationMatrix(rot);
+	vec3 norm = (vec3)(rotMatrix * vec4(0, 0, 1, 1));
+	normals[0] = norm.x;		normals[1] = norm.y;		normals[2] = norm.z;
+	normals[3] = norm.x;		normals[4] = norm.y;		normals[5] = norm.z;
+	normals[6] = norm.x;		normals[7] = norm.y;		normals[8] = norm.z;
+	normals[9] = norm.x;		normals[10] = norm.y;		normals[11] = norm.z;
 
 	pl->obj.pos = pos;
 	pl->obj.rot = rot;
@@ -225,7 +233,9 @@ bool bind_object(
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	obj->sp = link_programme_from_files( vertShader, fragShader );
-	obj->mvp = glGetUniformLocation(obj->sp, "MVP");
+	obj->m = glGetUniformLocation(obj->sp, "M");
+	obj->v = glGetUniformLocation(obj->sp, "V");
+	obj->p = glGetUniformLocation(obj->sp, "P");
 
 	free(points);
 	free(uvs);
@@ -246,8 +256,11 @@ bool draw_object(
 	mat4 T = translate(mat4(1.0f), obj->pos);
 	mat4 R = getRotationMatrix(obj->rot);
 
-	mat4 MVP = projectionMatrix * viewMatrix * (T * R);
-	glUniformMatrix4fv(obj->mvp, 1, GL_FALSE, &MVP[0][0]);
+	mat4 modelMatrix = T * R;
+	glUniformMatrix4fv(obj->m, 1, GL_FALSE, &modelMatrix[0][0]);
+	glUniformMatrix4fv(obj->v, 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(obj->p, 1, GL_FALSE, &projectionMatrix[0][0]);
+
 	glDrawArrays(drawMode, 0, obj->point_count);
 	return true;
 }
