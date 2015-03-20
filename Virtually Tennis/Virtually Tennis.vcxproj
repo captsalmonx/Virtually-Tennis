@@ -93,6 +93,8 @@
     <ClInclude Include="text.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\bg.frag" />
+    <None Include="Shaders\bg.vert" />
     <None Include="Shaders\base.frag" />
     <None Include="Shaders\base.vert" />
   </ItemGroup>

@@ -18,12 +18,15 @@ using namespace glm; // Save having to type glm:: everywhere
 
 #include "gl_utils.h"
 #include "obj_parser.h"
+#include "menu.h"
 #include "game.h"
 #include "court.h"
 #include "text.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 800 // Dimensions in pixels
+
+bool inGame = false;
 
 int main( void )
 {
@@ -79,26 +82,31 @@ int main( void )
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT));
 
-	init_game();
+	init_game(&inGame);
+	init_menu(&inGame);
 	
 	do {
 		static double lastTime = glfwGetTime();
 		double currentTime = glfwGetTime();
 		float deltaTime = float(currentTime - lastTime);
-		
-		update_game(deltaTime);
 
-		glClear( GL_DEPTH_BUFFER_BIT );
-		draw_texts();
+		if(inGame){
+			update_game(deltaTime);
+		} else {
+			update_menu();
+		}
 
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
 		lastTime = currentTime;
+
+		if(glfwGetKey(window, GLFW_KEY_ESCAPE ) == GLFW_PRESS && inGame){
+				inGame = false;
+		};
 	}
-	while ( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-		glfwWindowShouldClose(window) == 0 );
+	while ( glfwWindowShouldClose(window) == 0 );
 
 	clean_court();
 

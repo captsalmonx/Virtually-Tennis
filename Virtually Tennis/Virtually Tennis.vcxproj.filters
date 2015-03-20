@@ -85,5 +85,11 @@
     <None Include="Shaders\base.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Shaders\bg.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\bg.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

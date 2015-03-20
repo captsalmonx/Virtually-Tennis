@@ -402,6 +402,14 @@ bool change_text_colour (int id, float r, float g, float b, float a) {
 	return true;
 }
 
+bool change_text_colour(int id, glm::vec4 rgba){
+	renderable_texts[id].r = rgba.r;
+	renderable_texts[id].g = rgba.g;
+	renderable_texts[id].b = rgba.b;
+	renderable_texts[id].a = rgba.a;
+	return true;
+}
+
 bool change_text_alpha (int id, float a) {
 	renderable_texts[id].a = a;
 	return true;

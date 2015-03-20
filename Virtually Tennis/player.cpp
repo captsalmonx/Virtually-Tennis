@@ -76,6 +76,15 @@ bool init_player()
 	return true;
 }
 
+void reset_player()
+{
+	position = PLAYERSPAWN;
+	direction = vec3(0.0f);
+	horizontalAngle = 3.14f;
+	verticalAngle = 0.0f;
+
+}
+
 void update_player(float delta)
 {
 	// Get mouse position
@@ -149,8 +158,8 @@ void update_player(float delta)
 		change_text_alpha(powerText, swing);
 	}
 
-	position.x = clamp(position.x, -courtDimensions->x, courtDimensions->x);
-	position.z = clamp(position.z, 0.0f, courtDimensions->y);
+	position.x = clamp(position.x, -courtDimensions->x / 2.0f, courtDimensions->x / 2.0f);
+	position.z = clamp(position.z, 0.0f, courtDimensions->y / 2.0f);
 	position.y = PLAYERHEIGHT; // Throttle the player to remain on ground
 
 	// Camera/view matrix
@@ -159,6 +168,11 @@ void update_player(float delta)
 		position + direction,	// Where is it facing?
 		up						// Up orientation, up is up
 		);
+}
+
+void draw_player()
+{
+	draw_text(powerText);
 }
 
 /*bool isBallOnScreen()

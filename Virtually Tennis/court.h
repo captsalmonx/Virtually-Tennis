@@ -4,7 +4,8 @@
 #include "obj_parser.h"
 
 // Load environment assets
-bool init_court(int * score, int * combo);
+bool init_court(int * score, int * combo, int * difficulty);
+void reset_court();
 void draw_court();
 bool create_target();
 void delete_target(plane * target);

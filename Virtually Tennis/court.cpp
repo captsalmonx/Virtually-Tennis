@@ -14,6 +14,7 @@ using namespace glm; // Save having to type glm:: everywhere
 
 #include "gl_utils.h"
 #include "obj_parser.h"
+#include "game.h"
 #include "player.h"
 #include "text.h"
 #include "court.h"
@@ -31,8 +32,9 @@ using namespace glm; // Save having to type glm:: everywhere
 const vec2 court_dimensions = vec2(36.0f, 78.0f);
 
 #define TARGET_EDGEBUFFER 0.1f
-#define TARGET_SPAWNPROB 0.75f
+#define TARGET_SPAWNPROB 0.5f
 
+const float target_ranges[3] = { 5.0f, 10.0f, 25.0f };
 const char* target_textures[3] = {"Assets/target_1.png", "Assets/target_2.png", "Assets/target_3.png"};
 const vec2 target_dimensions[3] = {vec2(6.0f, 9.0f), vec2(7.0f, 11.0f), vec2(8.0f, 9.0f)};
 int target_texIDs[sizeof(target_textures) / sizeof(char*)];
@@ -41,11 +43,11 @@ plane court;
 plane targets[10]; // Maximum 10 targets
 object ball;
 
-int *scorePointer, *comboPointer;
+int *scorePointer, *comboPointer, *difficultyPointer;
 
 bool hit = false;
 
-bool init_court(int * score, int * combo) {
+bool init_court(int * score, int * combo, int * difficulty) {
 	float* points = NULL;
 	float* uvs = NULL;
 	float* normals = NULL;
@@ -54,6 +56,7 @@ bool init_court(int * score, int * combo) {
 	setDimensions(&court_dimensions);
 	scorePointer = score;
 	comboPointer = combo;
+	difficultyPointer = difficulty;
 
 	// CREATE FLOOR
 	if(!create_plane(&court, points, uvs, court_dimensions, vec3(0.0f, 0.0f, 0.0f),	vec3(-90.0f, 0.0f, 0.0f))){
@@ -78,6 +81,18 @@ bool init_court(int * score, int * combo) {
 	}
 
 	return true;
+}
+
+void reset_court(){
+	ball.pos = BALL_SPAWN;
+	ball.vel = vec3(0.0f);
+
+	for(int i = 0; i < sizeof(targets) / sizeof(plane); i++){
+		if(targets[i].dim.x > 0.0f){
+			delete_target(&targets[i]);
+		}
+	}
+
 }
 
 bool create_target(){
@@ -113,8 +128,8 @@ bool create_target(){
 	// Adjust position to account for texture
 	position.y += target_dimensions[iref].y / 2;
 
-	rotation.x = randRange(-5.0f, 5.0f);
-	rotation.y = randRange(-5.0f, 5.0f);
+	rotation.x = randRange(-target_ranges[*difficultyPointer] / 2, target_ranges[*difficultyPointer] / 2);
+	rotation.y = randRange(-target_ranges[*difficultyPointer] / 2, target_ranges[*difficultyPointer] / 2);
 	rotation.z = 180.0f;
 
 	if(!create_plane(&targets[i], points, uvs, target_dimensions[iref], position, rotation)){
@@ -135,7 +150,7 @@ void update_targets(float delta){
 	for(int i = 0; i < sizeof(targets) / sizeof(plane); i++){
 		// Has the target been initalized and thus in action?
 		if(targets[i].dim.x == 0.0f){
-			int randomValue = rand() % (int)((TARGET_SPAWNPROB / delta) * ((i + 1) * (i + 1)));
+			int randomValue = rand() % (int)((TARGET_SPAWNPROB / delta) * ((i + 1) * (i + 1) / 2.0f));
 			if(randomValue == 0){
 				create_target();
 			}
@@ -178,6 +193,7 @@ bool checkCollision_ball(float delta){
 				delete_target(&targets[i]);
 				*comboPointer += 1;
 				*scorePointer += *comboPointer;
+				checkCombo();
 				return true;
 			}
 		}

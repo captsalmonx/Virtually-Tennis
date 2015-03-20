@@ -4,6 +4,7 @@
 // change or comment these out if using different OpenGL libraries
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm\glm.hpp>
 
 //
 // call before main loop to load shaders and stuff
@@ -39,6 +40,7 @@ bool update_text (int id, const char* str);
 //
 // change colour of any previously added text
 bool change_text_colour (int id, float r, float g, float b, float a);
+bool change_text_colour(int id, glm::vec4 rgba);
 
 bool change_text_position(int id, float x, float y);
 bool change_text_alpha (int id, float a);
