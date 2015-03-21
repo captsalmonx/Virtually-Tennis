@@ -46,6 +46,7 @@ int main( void )
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	//window = glfwCreateWindow( WINDOW_WIDTH, WINDOW_HEIGHT, "Virtually Tennis - TJ Matthews", glfwGetPrimaryMonitor(), NULL);
 	window = glfwCreateWindow( WINDOW_WIDTH, WINDOW_HEIGHT, "Virtually Tennis - TJ Matthews", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, then get another GPU.\n" );
@@ -71,6 +72,7 @@ int main( void )
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	// Cull backfaces
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -93,6 +95,7 @@ int main( void )
 		double currentTime = glfwGetTime();
 		float deltaTime = float(currentTime - lastTime);
 
+		// If ingame update game, otherwise update the menu
 		if(inGame){
 			update_game(deltaTime);
 		} else {
@@ -105,8 +108,11 @@ int main( void )
 
 		lastTime = currentTime;
 
+		// If escape is pressed ingame return to the main menu
 		if(glfwGetKey(window, GLFW_KEY_ESCAPE ) == GLFW_PRESS && inGame){
-				inGame = false;
+			stopSounds();
+			reset_menu();
+			inGame = false;
 		};
 	}
 	while ( glfwWindowShouldClose(window) == 0 );

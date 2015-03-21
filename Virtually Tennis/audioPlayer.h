@@ -11,6 +11,8 @@ using namespace irrklang;
 
 bool init_audioPlayer();
 bool playCurrentSound();
+void stopSounds();
 void playSound(string fileName);
+void loopSound(string fileName);
 
 #endif

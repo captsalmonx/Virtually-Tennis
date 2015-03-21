@@ -50,6 +50,7 @@ void setDimensions(const vec2 * dimPointer){
 
 #define SWINGPOWER 35.0f
 #define SWINGACCEL 20.0f
+#define SWINGREACH 20.0f
 
 vec3 position = PLAYERSPAWN; // Initial position pulled back on Z to start near court edge
 vec3 direction;
@@ -64,15 +65,13 @@ const vec2 powerTextPos = vec2(-0.005f, 0.7f);
 
 bool init_player()
 {
-	int width, height;
-
-	glfwGetWindowSize(window, &width, &height);
-
+	// Initialize text
 	powerText = add_text (
 		"Charge",
 		powerTextPos.x, powerTextPos.y, 300.0f,
 		1.0f, 1.0f, 1.0f, 0.0f
 	);
+
 	// Projection matrix : 45 degree field of view, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	ProjectionMatrix = perspective(45.0f, 4.0f / 3.0f, 0.1f, 200.0f);
 	return true;
@@ -80,6 +79,7 @@ bool init_player()
 
 void reset_player()
 {
+	// Reset player to spawn point
 	position = PLAYERSPAWN;
 	direction = vec3(0.0f);
 	horizontalAngle = 3.14f;
@@ -93,7 +93,7 @@ void update_player(float delta)
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 
-	// Reset mouse position for next frame (this middle of window)
+	// Reset mouse position to centre of window
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
 	glfwSetCursorPos(window, width / 2, height / 2);
@@ -117,45 +117,59 @@ void update_player(float delta)
 		);
 
 	// Up vector
-	// Remember that the cross product of the two vectors gives a vector
-	// perpenticular to the surface / plane consisting of the two vectors
 	vec3 up = cross( right, direction );
 
 	// Move forward
 	if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS){
 		position += direction * delta * MOVESPEED; 
 	}
+	// Move backwards
 	if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS){
 		position -= direction * delta * MOVESPEED; 
 	}
+	// Move right
 	if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS){
 		position += right * delta * MOVESPEED;
 	}
+	// Move left
 	if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
 		position -= right * delta * MOVESPEED;
 	}
 
+	// Check swing
 	char tmp[52];
+	// Is a swing charging?
 	if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_PRESS){
+		// Increase swing amount by a constantly increasing velocity
+		// This gives that nice quick build up
 		swingVelocity += SWINGACCEL * delta;
 		swing += swingVelocity * delta;
 		swing = min(swing, 1.0f);
 
+		// If fully charged flicker the text indicator
 		if(swing == 1.0f){
 			change_text_position(powerText, powerTextPos.x + randRange(-0.01f, 0.01f), powerTextPos.y + randRange(-0.01f, 0.01f));
 		}
+		// Update text to change to ! when charged
 		update_text(powerText, swing == 1.0f ? "!" : ".");
+		// Gradually become opaque while charing
 		change_text_alpha(powerText, swing);
 	}
+	// Is there a swing to be processed?
 	else if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_RELEASE && swing > 0.0f){
+		// Is the ball close enough to the player to be hit?
 		if(isBallNearPlayer()){
 			hitBall(position, direction, SWINGPOWER, swing);
 		}else missBall();
+
+		// Reset the swing
 		swing = 0.0f;
 		swingVelocity = 0.0f;
+		change_text_position(powerText, powerTextPos.x, powerTextPos.y);
 		change_text_alpha(powerText, swing);
 	}
 
+	// Throttle the player to remain within the court
 	position.x = clamp(position.x, -courtDimensions->x / 2.0f, courtDimensions->x / 2.0f);
 	position.z = clamp(position.z, 0.0f, courtDimensions->y / 2.0f);
 	position.y = PLAYERHEIGHT; // Throttle the player to remain on ground
@@ -170,15 +184,21 @@ void update_player(float delta)
 
 void draw_player()
 {
+	// Only thing to draw here is the power text
 	draw_text(powerText);
 }
 
 /*bool isBallOnScreen()
 {
+	// This was evidently unused, but used to be used to check if the player 
+	// was looking at the ball when they swung
+	// Checks if the angle between the player's direction and the difference
+	// in position is within a certain range
 	return dot(direction, normalize(ball->pos - position)) >= 0.9f;
 }*/
 
 bool isBallNearPlayer()
 {
-	return distance(ball->pos, position) <= 20.0f;
+	// Can the player even reach the ball?
+	return distance(ball->pos, position) <= SWINGREACH;
 }
